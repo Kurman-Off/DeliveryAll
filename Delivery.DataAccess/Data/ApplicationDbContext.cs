@@ -14,15 +14,26 @@ namespace DeliveryAll.DataAccess.Data
         public DbSet<FoodItem> FoodItems { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer("your_connection_string_here", sqlServerOptionsAction: sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+                });
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Category>().HasData(
-				new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
-				new Category { Id = 2, Name = "Product", DisplayOrder = 2},
-				new Category { Id = 3, Name = "Prod", DisplayOrder = 3 }
-				);
+                new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
+                new Category { Id = 2, Name = "Product", DisplayOrder = 2 },
+                new Category { Id = 3, Name = "Prod", DisplayOrder = 3 }
+            );
             modelBuilder.Entity<FoodItem>().HasData(
                 new FoodItem
                 {
@@ -51,8 +62,7 @@ namespace DeliveryAll.DataAccess.Data
                     CategoryId = 3,
                     ImageUrl = ""
                 }
-                );
+            );
         }
-        
     }
 }
